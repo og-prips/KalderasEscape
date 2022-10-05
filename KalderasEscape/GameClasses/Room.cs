@@ -6,14 +6,6 @@ using System.Threading.Tasks;
 
 namespace KalderasEscape.GameClasses
 {
-    public enum Direction
-    {
-        North,
-        South,
-        West,
-        East
-    }
-
     internal class Room
     {
         public Room? NorthRoom;
@@ -25,6 +17,13 @@ namespace KalderasEscape.GameClasses
         public Door? SouthDoor;
         public Door? WestDoor;
         public Door? EastDoor;
+
+        public string Description;
+
+        public Room(string description)
+        {
+            Description = description;
+        }
 
         public void ConnectTo(Room room, Direction direction, bool doorLocked)
         {

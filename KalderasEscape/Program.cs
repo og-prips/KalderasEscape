@@ -7,16 +7,26 @@ namespace KalderasEscape
         static void Main(string[] args)
         {
             Game game = new Game();
-            Room s = new Room();
-            Room a = new Room();
-            Room b = new Room();
-            Room c = new Room();
 
-            s.ConnectTo(b, Direction.North, false);
-            b.ConnectTo(a, Direction.West, false);
-            b.ConnectTo(c, Direction.East, false);
+            game.InitializeGame();
+            game.StartGame();
+        }
 
-            List<Room> Map = new List<Room>();
+        public static void WriteLineFalling(string value)
+        {
+            foreach (char c in value)
+            {
+                Console.Write(c);
+                Thread.Sleep(20);
+            }
+            Console.WriteLine();
+        }
+
+        public static void Exit()
+        {
+            // save to files then close
+            WriteLineFalling("Shutting down...");
+            Environment.Exit(0);
         }
     }
 }
