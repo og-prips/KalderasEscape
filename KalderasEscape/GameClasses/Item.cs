@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KalderasEscape.GameClasses
+﻿namespace KalderasEscape.GameClasses
 {
     internal class Item
     {
         public Guid ID { get; set; }
         public string Name { get; set; }
 
+        public List<Item> PairableItems { get; set; }
+
+        //public Item Merge(Item a)
+        //{
+        //    if (PairableItems.Contains(a))
+        //    {
+        //    }
+        //}
     }
 }

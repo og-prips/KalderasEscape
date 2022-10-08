@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+﻿using Sharprompt;
 
 namespace KalderasEscape.GameClasses
 {
@@ -17,108 +12,83 @@ namespace KalderasEscape.GameClasses
 
     internal class Game
     {
-        Player player = new Player();
+        Player player;
 
-        Room s = new Room("starting room");
-        Room a = new Room("room a");
-        Room b = new Room("room b");
-        Room c = new Room("room c");
+        Room startingRoom;
+        Room room1;
+        Room room2;
+        Room room3;
+        Room room4;
+        Room room5;
+        Room endingRoom;
 
         public Game()
         {
-            player.CurrentRoom = s;
-            s.ConnectTo(b, Direction.North, false);
-            b.ConnectTo(a, Direction.West, false);
-            b.ConnectTo(c, Direction.East, false);
+            startingRoom = new Room("start");
+            room1 = new Room("room1");
+            room2 = new Room("room2");
+            room3 = new Room("room3");
+            room4 = new Room("room4");
+            room5 = new Room("room5");
+            endingRoom = new Room("ending");
+
+            player = new Player(startingRoom);
+
+            startingRoom.ConnectTo(room1, Direction.North, false);
+            room1.ConnectTo(room2, Direction.West, false);
+            room1.ConnectTo(room4, Direction.East, false);
+            room1.ConnectTo(endingRoom, Direction.North, true);
+            room2.ConnectTo(room3, Direction.South, false);
+            room4.ConnectTo(room5, Direction.South, false);
         }
 
         public void InitializeGame()
         {
+            
             Program.WriteLineFalling("welcome!");
 
             // provide player with information about the game (story, help-commands etc...)
         }
 
-        public void StartGame()
+        public void PlayGame()
         {
-            while (true)
+            var options = new string[] { "Look", "Go", "Inventory", "Exit" };
+            var action = Prompt.Select("What do I want to do?", options);
+
+            switch (action)
             {
-                Program.WriteLineFalling("enter a direction (n, s, w, e)");
-                var command = Console.ReadLine().ToLower();
+                case "Look":
+                    //describe room
+                    break;
 
-                switch (command)
-                {
-                    case "exit":
-                        Program.Exit();
-                        break;
+                case "Go":
+                    MovePlayer();
+                    PlayGame();
+                    break;
 
-                    case "n":
-                        MovePlayer(Direction.North);
-                        break;
+                case "Inventory":
+                    //display inventory
+                    break;
 
-                    case "s":
-                        MovePlayer(Direction.South);
-                        break;
-
-                    case "w":
-                        MovePlayer(Direction.West);
-                        break;
-
-                    case "e":
-                        MovePlayer(Direction.East);
-                        break;
-
-                    default:
-                        Program.WriteLineFalling("i did not quite get that...");
-                        break;
-                }
+                case "Exit":
+                    if (Prompt.Confirm("Are you sure?")) Program.Exit();
+                    else PlayGame();
+                    break;
             }
         }
 
-        private void MovePlayer(Direction direction)
+        private void MovePlayer()
         {
-            switch (direction)
-            {
-                case Direction.North:
-                    if (player.CurrentRoom.NorthRoom != null)
-                    {
-                        player.CurrentRoom = player.CurrentRoom.NorthRoom;
-                        Program.WriteLineFalling(player.CurrentRoom.Description);
-                        break;
-                    }
-                    Program.WriteLineFalling("There seems to be an impenetratable wall here...");
-                    break;
+            var options = new string[] 
+            {   
+                Direction.North.ToString(),
+                Direction.South.ToString(),
+                Direction.West.ToString(),
+                Direction.East.ToString() 
+            };
 
-                case Direction.South:
-                    if (player.CurrentRoom.SouthRoom != null)
-                    {
-                        player.CurrentRoom = player.CurrentRoom.SouthRoom;
-                        Program.WriteLineFalling(player.CurrentRoom.Description);
-                        break;
-                    }
-                    Program.WriteLineFalling("There seems to be an impenetratable wall here...");
-                    break;
-
-                case Direction.West:
-                    if (player.CurrentRoom.WestRoom != null)
-                    {
-                        player.CurrentRoom = player.CurrentRoom.WestRoom;
-                        Program.WriteLineFalling(player.CurrentRoom.Description);
-                        break;
-                    }
-                    Program.WriteLineFalling("There seems to be an impenetratable wall here...");
-                    break;
-
-                case Direction.East:
-                    if (player.CurrentRoom.EastRoom != null)
-                    {
-                        player.CurrentRoom = player.CurrentRoom.EastRoom;
-                        Program.WriteLineFalling(player.CurrentRoom.Description);
-                        break;
-                    }
-                    Program.WriteLineFalling("There seems to be an impenetratable wall here...");
-                    break;
-            }
+            Enum.TryParse(Prompt.Select("Where do I want to go?", options), out Direction direction);
+            player.Navigate(direction);
         }
     }
 }

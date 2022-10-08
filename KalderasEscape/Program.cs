@@ -9,7 +9,7 @@ namespace KalderasEscape
             Game game = new Game();
 
             game.InitializeGame();
-            game.StartGame();
+            game.PlayGame();
         }
 
         public static void WriteLineFalling(string value)
@@ -19,7 +19,7 @@ namespace KalderasEscape
                 Console.Write(c);
                 Thread.Sleep(20);
             }
-            Console.WriteLine();
+            Console.WriteLine("\n");
         }
 
         public static void Exit()

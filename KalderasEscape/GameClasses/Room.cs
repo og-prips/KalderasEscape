@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KalderasEscape.GameClasses
+﻿namespace KalderasEscape.GameClasses
 {
     internal class Room
     {
@@ -19,12 +13,19 @@ namespace KalderasEscape.GameClasses
         public Door? EastDoor;
 
         public string Description;
+        public string Name;
 
-        public Room(string description)
+        public Room(string name)
         {
-            Description = description;
+            Name = name;
         }
 
+        /// <summary>
+        /// Connects two rooms
+        /// </summary>
+        /// <param name="room">The room to be connected</param>
+        /// <param name="direction">The direction of where the room will be</param>
+        /// <param name="doorLocked">Specifies wether the door should be locked or open</param>
         public void ConnectTo(Room room, Direction direction, bool doorLocked)
         {
             switch (direction)
@@ -57,32 +58,20 @@ namespace KalderasEscape.GameClasses
 
         private void CreateNorthSouthDoor(Room northRoom, Room southRoom, bool isLocked)
         {
-            if (!isLocked)
-            {
-                var door = new Door();
+            var door = new Door();
+            door.IsLocked = isLocked;
 
-                northRoom.SouthDoor = door;
-                southRoom.NorthDoor = door;
-            }
-            else
-            {
-                // create locked door
-            }
+            northRoom.SouthDoor = door;
+            southRoom.NorthDoor = door;
         }
 
         private void CreateWestEastDoor(Room westRoom, Room eastRoom, bool isLocked)
         {
-            if (!isLocked)
-            {
-                var door = new Door();
+            var door = new Door();
+            door.IsLocked = isLocked;
 
-                westRoom.EastDoor= door;
-                eastRoom.WestDoor = door;
-            }
-            else
-            {
-                // create locked door
-            }
+            westRoom.EastDoor = door;
+            eastRoom.WestDoor = door;
         }
     }
 }
