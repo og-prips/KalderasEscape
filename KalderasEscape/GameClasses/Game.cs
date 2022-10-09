@@ -1,19 +1,24 @@
 ﻿using Sharprompt;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
+using System.Xml.Linq;
 
 namespace KalderasEscape.GameClasses
 {
     public enum Direction
     {
-        North = 'n',
-        South = 's',
-        West = 'w',
-        East = 'e'
+        [Display(Name = "North")]
+        North,
+        [Display(Name = "South")]
+        South,
+        [Display(Name = "West")]
+        West,
+        [Display(Name = "East")]
+        East
     }
 
     internal class Game
     {
-        Player player;
-
         Room startingRoom;
         Room room1;
         Room room2;
@@ -21,6 +26,10 @@ namespace KalderasEscape.GameClasses
         Room room4;
         Room room5;
         Room endingRoom;
+
+        Player player;
+
+        Item endingRoomKey;
 
         public Game()
         {
@@ -33,61 +42,94 @@ namespace KalderasEscape.GameClasses
             endingRoom = new Room("ending");
 
             player = new Player(startingRoom);
+            player.Inventory = new List<Item>();
 
-            startingRoom.ConnectTo(room1, Direction.North, false);
-            room1.ConnectTo(room2, Direction.West, false);
-            room1.ConnectTo(room4, Direction.East, false);
-            room1.ConnectTo(endingRoom, Direction.North, true);
-            room2.ConnectTo(room3, Direction.South, false);
-            room4.ConnectTo(room5, Direction.South, false);
+            endingRoomKey = new Item();
+            endingRoomKey.Name = "Mystical key";
+
+            startingRoom.ConnectTo(room1, Direction.North);
+            room1.ConnectTo(room2, Direction.West);
+            room1.ConnectTo(room4, Direction.East);
+            room1.ConnectTo(endingRoom, Direction.North, endingRoomKey);
+            room2.ConnectTo(room3, Direction.South);
+            room4.ConnectTo(room5, Direction.South);
+
+            startingRoom.Items.Add(endingRoomKey);
         }
 
-        public void InitializeGame()
+        public void Start()
         {
-            
             Program.WriteLineFalling("welcome!");
-
             // provide player with information about the game (story, help-commands etc...)
+
+            MainMenu();
         }
 
-        public void PlayGame()
+        private void MainMenu()
         {
-            var options = new string[] { "Look", "Go", "Inventory", "Exit" };
+            var options = new string[]
+            {
+                "Look",
+                "Go",
+                "Inventory",
+                "Exit"
+            };
+
             var action = Prompt.Select("What do I want to do?", options);
 
             switch (action)
             {
                 case "Look":
-                    //describe room
+                    //if (player.CurrentRoom.Items != null)
+                    //{
+                    //    player.CurrentRoom.Items.ForEach(item => Program.WriteLineFalling(item.Name));
+                    //}
+                    Look();
+                    MainMenu();
                     break;
 
                 case "Go":
-                    MovePlayer();
-                    PlayGame();
+                    Go();
+                    MainMenu();
                     break;
 
                 case "Inventory":
-                    //display inventory
+                    player.Inventory.Add(endingRoomKey);
+                    MainMenu();
                     break;
 
                 case "Exit":
                     if (Prompt.Confirm("Are you sure?")) Program.Exit();
-                    else PlayGame();
+                    else MainMenu();
                     break;
             }
         }
 
-        private void MovePlayer()
+        private void Look()
         {
-            var options = new string[] 
-            {   
-                Direction.North.ToString(),
-                Direction.South.ToString(),
-                Direction.West.ToString(),
-                Direction.East.ToString() 
-            };
+            var options = new string[player.CurrentRoom.Items.Count + 1];
+            options[player.CurrentRoom.Items.Count + 1] = "Go back";
 
-            Enum.TryParse(Prompt.Select("Where do I want to go?", options), out Direction direction);
+            for (int i = 0; i < player.CurrentRoom.Items.Count; i++)
+            {
+                options[i] = player.CurrentRoom.Items[i].Name;
+            }
+
+            var action = Prompt.Select("You see...", options);
+
+            if (action == "Go back")
+            {
+                MainMenu();
+            }
+            else
+            {
+                var item = player.CurrentRoom.Items.Where(item => item.Name == action).FirstOrDefault();
+            }
+        }
+
+        private void Go()
+        {
+            var direction = Prompt.Select<Direction>("Where do I want to go?");
             player.Navigate(direction);
         }
     }

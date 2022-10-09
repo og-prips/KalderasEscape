@@ -1,4 +1,5 @@
 ﻿using KalderasEscape.GameClasses;
+using System.Text;
 
 namespace KalderasEscape
 {
@@ -8,8 +9,7 @@ namespace KalderasEscape
         {
             Game game = new Game();
 
-            game.InitializeGame();
-            game.PlayGame();
+            game.Start();
         }
 
         public static void WriteLineFalling(string value)

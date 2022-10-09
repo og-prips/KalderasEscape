@@ -1,0 +1,10 @@
+{
+    "player":
+    {
+        "currentRoom":"startingRoom",
+        "inventory":
+        [
+
+        ]
+    }
+}

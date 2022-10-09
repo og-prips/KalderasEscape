@@ -2,7 +2,7 @@
 {
     internal class Door
     {
-        public Key? MatchingKey { get; set; }
+        public Item? Key { get; set; }
         public bool IsLocked { get; set; }
         
         /// <summary>
@@ -16,10 +16,10 @@
         /// <summary>
         /// Creates a locked door with a matching key
         /// </summary>
-        /// <param name="matchingKey"></param>
-        public Door(Key matchingKey)
+        /// <param name="key"></param>
+        public Door(Item key)
         {
-            MatchingKey = matchingKey;
+            Key = key;
             IsLocked = true;
         }
     }

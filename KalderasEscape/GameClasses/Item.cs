@@ -2,16 +2,18 @@
 {
     internal class Item
     {
-        public Guid ID { get; set; }
-        public string Name { get; set; }
+        public Guid ID;
+        public string Name;
 
-        public List<Item> PairableItems { get; set; }
+        public List<Item> PairableItems;
+        public Item MergedItem;
 
-        //public Item Merge(Item a)
-        //{
-        //    if (PairableItems.Contains(a))
+        // public Item MergeWith(Item item)
+        // {
+        //    if (PairableItems.Contains(item))
         //    {
+        //         return MergedItem;
         //    }
-        //}
+        // }
     }
 }

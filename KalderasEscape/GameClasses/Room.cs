@@ -12,6 +12,8 @@
         public Door? WestDoor;
         public Door? EastDoor;
 
+        public List<Item> Items = new List<Item>();
+
         public string Description;
         public string Name;
 
@@ -21,54 +23,100 @@
         }
 
         /// <summary>
-        /// Connects two rooms
+        /// Connects two rooms with an unlocked door
         /// </summary>
         /// <param name="room">The room to be connected</param>
         /// <param name="direction">The direction of where the room will be</param>
-        /// <param name="doorLocked">Specifies wether the door should be locked or open</param>
-        public void ConnectTo(Room room, Direction direction, bool doorLocked)
+        public void ConnectTo(Room room, Direction direction)
         {
             switch (direction)
             {
                 case Direction.North:
                     NorthRoom = room;
                     room.SouthRoom = this;
-                    CreateNorthSouthDoor(room, this, doorLocked);
+                    CreateNorthSouthDoor(room, this);
                     break;
 
                 case Direction.South:
                     SouthRoom = room;
                     room.NorthRoom = this;
-                    CreateNorthSouthDoor(this, room, doorLocked);
+                    CreateNorthSouthDoor(this, room);
                     break;
 
                 case Direction.West:
                     WestRoom = room;
                     room.EastRoom = this;
-                    CreateWestEastDoor(room, this, doorLocked);
+                    CreateWestEastDoor(room, this);
                     break;
 
                 case Direction.East:
                     EastRoom = room;
                     room.WestRoom = this;
-                    CreateWestEastDoor(this, room, doorLocked);
+                    CreateWestEastDoor(this, room);
                     break;
             }
         }
 
-        private void CreateNorthSouthDoor(Room northRoom, Room southRoom, bool isLocked)
+        /// <summary>
+        /// Connects two rooms with a locked door
+        /// </summary>
+        /// <param name="room">The room to be connected</param>
+        /// <param name="direction">The direction of where the room will be</param>
+        public void ConnectTo(Room room, Direction direction, Item key)
+        {
+            switch (direction)
+            {
+                case Direction.North:
+                    NorthRoom = room;
+                    room.SouthRoom = this;
+                    CreateNorthSouthDoor(room, this, key);
+                    break;
+
+                case Direction.South:
+                    SouthRoom = room;
+                    room.NorthRoom = this;
+                    CreateNorthSouthDoor(this, room, key);
+                    break;
+
+                case Direction.West:
+                    WestRoom = room;
+                    room.EastRoom = this;
+                    CreateWestEastDoor(room, this, key);
+                    break;
+
+                case Direction.East:
+                    EastRoom = room;
+                    room.WestRoom = this;
+                    CreateWestEastDoor(this, room, key);
+                    break;
+            }
+        }
+
+        private void CreateNorthSouthDoor(Room northRoom, Room southRoom)
         {
             var door = new Door();
-            door.IsLocked = isLocked;
+            northRoom.SouthDoor = door;
+            southRoom.NorthDoor = door;
+        }
+
+        private void CreateWestEastDoor(Room westRoom, Room eastRoom)
+        {
+            var door = new Door();
+            westRoom.EastDoor = door;
+            eastRoom.WestDoor = door;
+        }
+
+        private void CreateNorthSouthDoor(Room northRoom, Room southRoom, Item key)
+        {
+            var door = new Door(key);
 
             northRoom.SouthDoor = door;
             southRoom.NorthDoor = door;
         }
 
-        private void CreateWestEastDoor(Room westRoom, Room eastRoom, bool isLocked)
+        private void CreateWestEastDoor(Room westRoom, Room eastRoom, Item key)
         {
-            var door = new Door();
-            door.IsLocked = isLocked;
+            var door = new Door(key);
 
             westRoom.EastDoor = door;
             eastRoom.WestDoor = door;
