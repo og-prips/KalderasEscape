@@ -46,6 +46,7 @@ namespace KalderasEscape.GameClasses
 
             endingRoomKey = new Item();
             endingRoomKey.Name = "Mystical key";
+            endingRoomKey.Description = "The key seems to be glowing with some kind of magic";
 
             startingRoom.ConnectTo(room1, Direction.North);
             room1.ConnectTo(room2, Direction.West);
@@ -80,16 +81,11 @@ namespace KalderasEscape.GameClasses
             switch (action)
             {
                 case "Look":
-                    //if (player.CurrentRoom.Items != null)
-                    //{
-                    //    player.CurrentRoom.Items.ForEach(item => Program.WriteLineFalling(item.Name));
-                    //}
-                    Look();
-                    MainMenu();
+                    LookAtRoom();
                     break;
 
                 case "Go":
-                    Go();
+                    MovePlayer();
                     MainMenu();
                     break;
 
@@ -105,12 +101,12 @@ namespace KalderasEscape.GameClasses
             }
         }
 
-        private void Look()
+        private void LookAtRoom()
         {
             var options = new string[player.CurrentRoom.Items.Count + 1];
-            options[player.CurrentRoom.Items.Count + 1] = "Go back";
+            options[player.CurrentRoom.Items.Count] = "Go back";
 
-            for (int i = 0; i < player.CurrentRoom.Items.Count; i++)
+            for (int i = 0; i < player.CurrentRoom.Items.Count - 1; i++)
             {
                 options[i] = player.CurrentRoom.Items[i].Name;
             }
@@ -124,10 +120,31 @@ namespace KalderasEscape.GameClasses
             else
             {
                 var item = player.CurrentRoom.Items.Where(item => item.Name == action).FirstOrDefault();
+                LookAtItem(item);
             }
         }
 
-        private void Go()
+        private void LookAtItem(Item item)
+        {
+            Program.WriteLineFalling(item.Description);
+
+            var options = new string[] { "Pick up", "Go back" };
+            var action = Prompt.Select($"What do you want to do with {item.Name}?", options);
+
+            switch (action)
+            {
+                case "Pick up":
+                    player.PickUp(item);
+                    LookAtRoom();
+                    break;
+
+                case "Go back":
+                    LookAtRoom();
+                    break;
+            }
+        }
+
+        private void MovePlayer()
         {
             var direction = Prompt.Select<Direction>("Where do I want to go?");
             player.Navigate(direction);
