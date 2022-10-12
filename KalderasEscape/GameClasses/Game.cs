@@ -1,7 +1,6 @@
-﻿using Sharprompt;
+﻿using KalderasEscape.GameClasses.Items;
+using Sharprompt;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Linq;
 
 namespace KalderasEscape.GameClasses
 {
@@ -17,7 +16,7 @@ namespace KalderasEscape.GameClasses
         East
     }
 
-    internal class Game
+    public class Game
     {
         Room startingRoom;
         Room room1;
@@ -27,11 +26,37 @@ namespace KalderasEscape.GameClasses
         Room room5;
         Room endingRoom;
 
+        List<Room> map;
+
         Player player;
 
-        Item endingRoomKey;
+        Item endingRoomKeyCard;
+        Item spaceHelmet;
 
         public Game()
+        {
+            InitializeItems();
+            InitializeRooms();
+            InitializePlayer();
+        }
+
+        public void Start()
+        {
+            Program.WriteLineFalling("welcome!");
+            // provide player with information about the game (story, help-commands etc...)
+
+            MainMenu();
+        }
+
+        // Creates and sets parameters
+        private void InitializeItems()
+        {
+            endingRoomKeyCard = new KeyCard();
+            spaceHelmet = new SpaceHelmet();
+        }
+
+        // Creates rooms and sets parameters. Connects the rooms to build a map
+        private void InitializeRooms()
         {
             startingRoom = new Room("start");
             room1 = new Room("room1");
@@ -41,29 +66,49 @@ namespace KalderasEscape.GameClasses
             room5 = new Room("room5");
             endingRoom = new Room("ending");
 
-            player = new Player(startingRoom);
-            player.Inventory = new List<Item>();
+            startingRoom.Description = 
+                "You wake up in a dark room, you feel tired and hurt, not really sure what happened to you.\n\n" +
+                "You and your team were on a mission to explore planet Kaldera, a planet found in the nearest solar system which seemed habitable for life\n\n" +
+                "The last thing your remember is a violent crash after your ship lost control when entering the atmosphere...";
 
-            endingRoomKey = new Item();
-            endingRoomKey.Name = "Mystical key";
-            endingRoomKey.Description = "The key seems to be glowing with some kind of magic";
+            room1.Description = "room1";
+            room2.Description = "room2";
+            room3.Description = "room3";
+            room4.Description = "room4";
+            room5.Description = "room5";
+            endingRoom.Description = "ending room";
 
             startingRoom.ConnectTo(room1, Direction.North);
             room1.ConnectTo(room2, Direction.West);
             room1.ConnectTo(room4, Direction.East);
-            room1.ConnectTo(endingRoom, Direction.North, endingRoomKey);
+            room1.ConnectTo(endingRoom, Direction.North, endingRoomKeyCard); ;
             room2.ConnectTo(room3, Direction.South);
             room4.ConnectTo(room5, Direction.South);
 
-            startingRoom.Items.Add(endingRoomKey);
+            room1.Items.Add(endingRoomKeyCard);
+            startingRoom.Items.Add(spaceHelmet);
+
+            map = new List<Room>();
+
+            map.Add(startingRoom);
+            map.Add(room1);
+            map.Add(room2);
+            map.Add(room3);
+            map.Add(room4);
+            map.Add(room5);
+            map.Add(endingRoom);
+
+            foreach (var room in map)
+            {
+                room.SetConnectedRooms();
+            }
         }
 
-        public void Start()
+        // Creates a player
+        private void InitializePlayer()
         {
-            Program.WriteLineFalling("welcome!");
-            // provide player with information about the game (story, help-commands etc...)
-
-            MainMenu();
+            player = new Player(startingRoom);
+            player.Inventory = new List<Item>();
         }
 
         private void MainMenu()
@@ -90,7 +135,7 @@ namespace KalderasEscape.GameClasses
                     break;
 
                 case "Inventory":
-                    player.Inventory.Add(endingRoomKey);
+                    player.Inventory.Add(endingRoomKeyCard);
                     MainMenu();
                     break;
 
@@ -103,17 +148,19 @@ namespace KalderasEscape.GameClasses
 
         private void LookAtRoom()
         {
+            var action = "";
             var options = new string[player.CurrentRoom.Items.Count + 1];
-            options[player.CurrentRoom.Items.Count] = "Go back";
-
-            for (int i = 0; i < player.CurrentRoom.Items.Count - 1; i++)
+            
+            for (int i = 0; i < player.CurrentRoom.Items.Count; i++)
             {
                 options[i] = player.CurrentRoom.Items[i].Name;
             }
+            options[player.CurrentRoom.Items.Count] = "Main menu";
 
-            var action = Prompt.Select("You see...", options);
+            Program.WriteLineFalling(player.CurrentRoom.Description);
+            action = Prompt.Select("Go to...", options);
 
-            if (action == "Go back")
+            if (action == "Main menu")
             {
                 MainMenu();
             }
@@ -126,21 +173,24 @@ namespace KalderasEscape.GameClasses
 
         private void LookAtItem(Item item)
         {
-            Program.WriteLineFalling(item.Description);
+            var options = new string[item.Actions.Length + 1];
 
-            var options = new string[] { "Pick up", "Go back" };
-            var action = Prompt.Select($"What do you want to do with {item.Name}?", options);
-
-            switch (action)
+            for (int i = 0; i < item.Actions.Length; i++)
             {
-                case "Pick up":
-                    player.PickUp(item);
-                    LookAtRoom();
-                    break;
+                options[i] = item.Actions[i];
+            }
+            options[item.Actions.Length] = "Main menu";
 
-                case "Go back":
-                    LookAtRoom();
-                    break;
+            var action = Prompt.Select($"What do you want to do with '{item.Name}'?", options);
+
+            if (action == "Main menu")
+            {
+                MainMenu();
+            }
+            else
+            {
+                item.PerformAction(player, action);
+                LookAtItem(item);
             }
         }
 
@@ -148,6 +198,11 @@ namespace KalderasEscape.GameClasses
         {
             var direction = Prompt.Select<Direction>("Where do I want to go?");
             player.Navigate(direction);
+        }
+
+        private void ShowInventory()
+        {
+
         }
     }
 }

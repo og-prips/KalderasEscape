@@ -1,9 +1,8 @@
 ﻿using KalderasEscape.GameClasses;
-using System.Text;
 
 namespace KalderasEscape
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -14,10 +13,14 @@ namespace KalderasEscape
 
         public static void WriteLineFalling(string value)
         {
+            var sleepInterval = 20;
+
+            if (value.Length > 40) sleepInterval = 10;
+
             foreach (char c in value)
             {
                 Console.Write(c);
-                Thread.Sleep(20);
+                Thread.Sleep(sleepInterval);
             }
             Console.WriteLine("\n");
         }

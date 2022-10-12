@@ -1,6 +1,6 @@
 ﻿namespace KalderasEscape.GameClasses
 {
-    internal class Door
+    public class Door
     {
         public Item? Key { get; set; }
         public bool IsLocked { get; set; }
@@ -21,6 +21,11 @@
         {
             Key = key;
             IsLocked = true;
+        }
+
+        public void Unlock(Item key)
+        {
+
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace KalderasEscape.GameClasses
 {
-    internal class Room
+    public class Room
     {
         public Room? NorthRoom;
         public Room? SouthRoom;
@@ -12,7 +12,8 @@
         public Door? WestDoor;
         public Door? EastDoor;
 
-        public List<Item> Items = new List<Item>();
+        public List<Item>? Items = new List<Item>();
+        public List<Room> ConnectedRooms = new List<Room>();
 
         public string Description;
         public string Name;
@@ -62,7 +63,7 @@
         /// </summary>
         /// <param name="room">The room to be connected</param>
         /// <param name="direction">The direction of where the room will be</param>
-        public void ConnectTo(Room room, Direction direction, Item key)
+        public void ConnectTo(Room room, Direction direction, Item key )
         {
             switch (direction)
             {
@@ -89,6 +90,49 @@
                     room.WestRoom = this;
                     CreateWestEastDoor(this, room, key);
                     break;
+            }
+        }
+
+        public void SetConnectedRooms()
+        {
+            if (NorthRoom != null)
+            {
+                ConnectedRooms.Add(NorthRoom);
+            }
+
+            if (SouthRoom != null)
+            {
+                ConnectedRooms.Add(SouthRoom);
+            }
+
+            if (WestRoom != null)
+            { 
+                ConnectedRooms.Add(WestRoom);
+            }
+
+            if (EastRoom != null)
+            {
+                ConnectedRooms.Add(EastRoom);
+            }
+        }
+
+        public Door GetDoorByRoom(Room room)
+        {
+            if (room == NorthRoom)
+            {
+                return NorthDoor;
+            }
+            else if (room == SouthRoom)
+            {
+                return SouthDoor;
+            }
+            else if (room == WestRoom)
+            {
+                return WestDoor;
+            }
+            else
+            {
+                return EastDoor;
             }
         }
 

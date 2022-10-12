@@ -1,8 +1,6 @@
-﻿using System.Security;
-
-namespace KalderasEscape.GameClasses
+﻿namespace KalderasEscape.GameClasses
 {
-    internal class Player
+    public class Player
     {
         public string Name;
         public Room CurrentRoom;
@@ -35,16 +33,9 @@ namespace KalderasEscape.GameClasses
             {
                 Program.WriteLineFalling("I cannot move there, a wall is in the way...");
             }
-            else if (doorToEnter.IsLocked && Inventory.Contains(doorToEnter.Key))
+            else if (doorToEnter.IsLocked)
             {
-                if (Inventory.Contains(doorToEnter.Key))
-                {
-                    var matchingKey = Inventory.Where(item => item.Equals(doorToEnter.Key));
-                }
-                else
-                {
-                    Program.WriteLineFalling("The door is locked, and I dont seem to have the key...");
-                }
+                Program.WriteLineFalling("The door is locked");
             }
             else
             {
