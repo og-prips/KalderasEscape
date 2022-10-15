@@ -173,13 +173,13 @@ namespace KalderasEscape.GameClasses
 
         private void LookAtItem(Item item)
         {
-            var options = new string[item.Actions.Length + 1];
+            var options = new string[item.Actions.Count + 1];
 
-            for (int i = 0; i < item.Actions.Length; i++)
+            for (int i = 0; i < item.Actions.Count; i++)
             {
                 options[i] = item.Actions[i];
             }
-            options[item.Actions.Length] = "Main menu";
+            options[item.Actions.Count] = "Main menu";
 
             var action = Prompt.Select($"What do you want to do with '{item.Name}'?", options);
 

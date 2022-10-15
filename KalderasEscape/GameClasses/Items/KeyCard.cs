@@ -6,18 +6,32 @@ namespace KalderasEscape.GameClasses.Items
     {
         public override string Name { get; set; } = "Blood stained keycard";
         public override string Description { get; set; } = "This could be useful for getting out of here";
-        public override string[]? Actions { get; set; } = { "Use", "Inspect" };
+        public override List<string> Actions { get; set; }
+
+        //public KeyCard()
+        //{
+        //    Actions.Add("Inspect");
+        //    Actions.Add("Pick up");
+        //}
 
         public override void PerformAction(Player player, string action)
         {
             switch (action)
             {
+                case "Inspect":
+                    Inspect();
+                    break;
+
                 case "Use":
                     Use(player.CurrentRoom);
                     break;
 
-                case "Inspect":
-                    Inspect();
+                case "Pick up":
+                    player.PickUp(this);
+                    break;
+
+                case "Drop":
+                    player.Drop(this);
                     break;
             }
         }

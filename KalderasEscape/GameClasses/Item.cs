@@ -4,9 +4,15 @@
     {
         public abstract string Name { get; set; }
         public abstract string Description { get; set; }
-        public virtual string[]? Actions { get; set; } = { "Inspect", "Pick up", "Drop" };
+        public virtual List<string> Actions { get; set; }
         public virtual List<Item> PairableItems { get; set; }
         public virtual Item MergedItem { get; set; }
+
+        //public Item()
+        //{
+        //    Actions.Add("Insect");
+        //    Actions.Add("Pick up");
+        //}
 
         public virtual void PerformAction(Player player, string action)
         {
@@ -15,12 +21,30 @@
                 case "Inspect":
                     Inspect();
                     break;
+
+                case "Pick up":
+                    player.PickUp(this);
+                    UpdateActions("Pick up", "Drop");
+                    break;
+
+                case "Drop":
+                    player.Drop(this);
+                    UpdateActions("Drop", "Pick up");
+                    break;
             }
         }
 
         private void Inspect()
         {
             Program.WriteLineFalling(Description);
+        }
+
+        private void UpdateActions(string oldValue, string newValue)
+        {
+            foreach (var value in Actions)
+            {
+                value.Replace(oldValue, newValue);
+            }
         }
 
         //public Item MergeWith(Item item)
