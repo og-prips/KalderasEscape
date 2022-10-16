@@ -23,9 +23,7 @@ namespace KalderasEscape.GameClasses
         Room commandRoom;
         Room passageRoom;
         Room utilityRoom;
-        Room room3;
         Room sleepingRoom;
-        Room room5;
         Room endingRoom;
 
         List<Room> map;
