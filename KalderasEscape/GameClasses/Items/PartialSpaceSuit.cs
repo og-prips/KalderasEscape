@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace KalderasEscape.GameClasses.Items
 {
-    internal class SpaceHelmet : Item
+    internal class PartialSpaceSuit : Item
     {
-        public override string Name { get; set; } = "Space Helmet";
-        public override string Description { get; set; } = "A space helmet";
-        
+        public override string Name { get; set; } = "Partial space suit";
+        public override string Description { get; set; } = "A space suit without a helmet";
 
         public override List<string> GetOptions(Player player)
         {

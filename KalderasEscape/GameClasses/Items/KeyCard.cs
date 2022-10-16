@@ -6,20 +6,29 @@ namespace KalderasEscape.GameClasses.Items
     {
         public override string Name { get; set; } = "Blood stained keycard";
         public override string Description { get; set; } = "This could be useful for getting out of here";
-        public override string[]? Actions { get; set; } = { "Use", "Inspect" };
-
+        
         public override void PerformAction(Player player, string action)
         {
+            base.PerformAction(player, action);
+
             switch (action)
             {
                 case "Use":
                     Use(player.CurrentRoom);
                     break;
-
-                case "Inspect":
-                    Inspect();
-                    break;
             }
+        }
+
+        public override List<string> GetOptions(Player player)
+        {
+            var currentActions = base.GetOptions(player);
+
+            if (player.Inventory.Contains(this))
+            {
+                currentActions.Add("Use");
+            }
+
+            return currentActions;
         }
 
         private void Use(Room room)
@@ -43,11 +52,6 @@ namespace KalderasEscape.GameClasses.Items
             {
                 Program.WriteLineFalling("That door is already unlocked");
             }
-        }
-
-        private void Inspect()
-        {
-            Program.WriteLineFalling(Description);
         }
     }
 }

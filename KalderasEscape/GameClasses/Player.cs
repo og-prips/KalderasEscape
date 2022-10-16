@@ -40,7 +40,7 @@
             else
             {
                 CurrentRoom = roomToEnter;
-                Program.WriteLineFalling(CurrentRoom.Name);
+                Program.WriteLineFalling($"You go into {CurrentRoom.Name}");
             }
         }
 
@@ -48,12 +48,16 @@
         {
             Inventory.Add(item);
             CurrentRoom.Items.Remove(item);
+
+            Program.WriteLineFalling($"You pick up {item.Name}");
         }
 
         public void Drop(Item item)
         {
             Inventory.Remove(item);
             CurrentRoom.Items.Add(item);
+
+            Program.WriteLineFalling($"You drop {item.Name}");
         }
     }
 }

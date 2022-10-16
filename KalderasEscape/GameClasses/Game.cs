@@ -1,6 +1,8 @@
 ﻿using KalderasEscape.GameClasses.Items;
 using Sharprompt;
+using System;
 using System.ComponentModel.DataAnnotations;
+using static System.Collections.Specialized.BitVector32;
 
 namespace KalderasEscape.GameClasses
 {
@@ -18,11 +20,11 @@ namespace KalderasEscape.GameClasses
 
     public class Game
     {
-        Room startingRoom;
-        Room room1;
-        Room room2;
+        Room commandRoom;
+        Room passageRoom;
+        Room utilityRoom;
         Room room3;
-        Room room4;
+        Room sleepingRoom;
         Room room5;
         Room endingRoom;
 
@@ -32,6 +34,8 @@ namespace KalderasEscape.GameClasses
 
         Item endingRoomKeyCard;
         Item spaceHelmet;
+        Item partialSpaceSuit;
+        Item spaceSuit;
 
         public Game()
         {
@@ -40,12 +44,45 @@ namespace KalderasEscape.GameClasses
             InitializePlayer();
         }
 
-        public void Start()
+        public void StartGame()
         {
-            Program.WriteLineFalling("welcome!");
-            // provide player with information about the game (story, help-commands etc...)
+            string startingMessage =
+                "Welcome to Kalderas Escape!\nA text-adventure game where you will be able to move around and explore your crashed spaceship in an attempt to survive\n\n";
+            Program.WriteLineFalling(startingMessage);
 
-            MainMenu();
+            player.Name = Prompt.Input<string>("Enter a name for your character");
+
+            startingMessage =
+                "You and your team were on a mission to explore planet Kaldera, a planet found in the nearest solar system which seemed habitable for life.\n" +
+                $"Things turned horribly wrong once you entered the atmosphere resulting in a violent crash where you, {player.Name}, remain the only survivor...";
+            Program.WriteLineFalling(startingMessage);
+
+            ShowMainMenu();
+        }
+
+        private void EndGame()
+        {
+            var endingMessage =
+                "You head out into Kaldera, a brand new world for you to explore\n\n--- THE END ---";
+
+            Program.WriteLineFalling(endingMessage);
+
+            if (Prompt.Confirm("Do you want to replay the game?"))
+            {
+                ResetGame();
+                StartGame();
+            }
+            else
+            {
+                Program.Exit();
+            }
+        }
+
+        private void ResetGame()
+        {
+            InitializeItems();
+            InitializeRooms();
+            InitializePlayer();
         }
 
         // Creates and sets parameters
@@ -53,49 +90,47 @@ namespace KalderasEscape.GameClasses
         {
             endingRoomKeyCard = new KeyCard();
             spaceHelmet = new SpaceHelmet();
+            partialSpaceSuit = new PartialSpaceSuit();
+            spaceSuit = new SpaceSuit();
+
+            spaceHelmet.SetCombineItem(partialSpaceSuit, spaceSuit);
         }
 
         // Creates rooms and sets parameters. Connects the rooms to build a map
         private void InitializeRooms()
         {
-            startingRoom = new Room("start");
-            room1 = new Room("room1");
-            room2 = new Room("room2");
-            room3 = new Room("room3");
-            room4 = new Room("room4");
-            room5 = new Room("room5");
-            endingRoom = new Room("ending");
+            commandRoom = new Room("Command Room");
+            passageRoom = new Room("Passage Room");
+            utilityRoom = new Room("Utility Room");
+            sleepingRoom = new Room("Sleeping Room");
+            endingRoom = new Room("Kaldera");
 
-            startingRoom.Description = 
-                "You wake up in a dark room, you feel tired and hurt, not really sure what happened to you.\n\n" +
-                "You and your team were on a mission to explore planet Kaldera, a planet found in the nearest solar system which seemed habitable for life\n\n" +
-                "The last thing your remember is a violent crash after your ship lost control when entering the atmosphere...";
+            endingRoom.IsEndPoint = true;
 
-            room1.Description = "room1";
-            room2.Description = "room2";
-            room3.Description = "room3";
-            room4.Description = "room4";
-            room5.Description = "room5";
-            endingRoom.Description = "ending room";
+            commandRoom.Description =
+                "The command room, where you were seated during the crash. It's no pleasant sight...\nYou see a keycard lying on the floor amidst all chaos";
+            passageRoom.Description = 
+                "This is the room which separates you from the open world, to the west of you is the Utility room and to the east lies the Sleeping room";
+            utilityRoom.Description = 
+                "In here lies a bunch of equipment, most of which is broken. Though one space suit lies intact, though it's missing a helmet";
+            sleepingRoom.Description = 
+                "The room where your crew headed for rest. One of your crew members space helmet lies beside one of the beds, it could be useful";
 
-            startingRoom.ConnectTo(room1, Direction.North);
-            room1.ConnectTo(room2, Direction.West);
-            room1.ConnectTo(room4, Direction.East);
-            room1.ConnectTo(endingRoom, Direction.North, endingRoomKeyCard); ;
-            room2.ConnectTo(room3, Direction.South);
-            room4.ConnectTo(room5, Direction.South);
+            commandRoom.ConnectTo(passageRoom, Direction.North);
+            passageRoom.ConnectTo(utilityRoom, Direction.West);
+            passageRoom.ConnectTo(sleepingRoom, Direction.East);
+            passageRoom.ConnectTo(endingRoom, Direction.North, endingRoomKeyCard); ;
 
-            room1.Items.Add(endingRoomKeyCard);
-            startingRoom.Items.Add(spaceHelmet);
+            commandRoom.Items.Add(endingRoomKeyCard);
+            sleepingRoom.Items.Add(spaceHelmet);
+            utilityRoom.Items.Add(partialSpaceSuit);
 
             map = new List<Room>();
 
-            map.Add(startingRoom);
-            map.Add(room1);
-            map.Add(room2);
-            map.Add(room3);
-            map.Add(room4);
-            map.Add(room5);
+            map.Add(commandRoom);
+            map.Add(passageRoom);
+            map.Add(utilityRoom);
+            map.Add(sleepingRoom);
             map.Add(endingRoom);
 
             foreach (var room in map)
@@ -107,11 +142,11 @@ namespace KalderasEscape.GameClasses
         // Creates a player
         private void InitializePlayer()
         {
-            player = new Player(startingRoom);
+            player = new Player(commandRoom);
             player.Inventory = new List<Item>();
         }
 
-        private void MainMenu()
+        private void ShowMainMenu()
         {
             var options = new string[]
             {
@@ -121,7 +156,7 @@ namespace KalderasEscape.GameClasses
                 "Exit"
             };
 
-            var action = Prompt.Select("What do I want to do?", options);
+            var action = Prompt.Select($"What does {player.Name} want to do?", options);
 
             switch (action)
             {
@@ -131,17 +166,15 @@ namespace KalderasEscape.GameClasses
 
                 case "Go":
                     MovePlayer();
-                    MainMenu();
                     break;
 
                 case "Inventory":
-                    player.Inventory.Add(endingRoomKeyCard);
-                    MainMenu();
+                    ShowInventory();
                     break;
 
                 case "Exit":
                     if (Prompt.Confirm("Are you sure?")) Program.Exit();
-                    else MainMenu();
+                    else ShowMainMenu();
                     break;
             }
         }
@@ -162,7 +195,7 @@ namespace KalderasEscape.GameClasses
 
             if (action == "Main menu")
             {
-                MainMenu();
+                ShowMainMenu();
             }
             else
             {
@@ -171,26 +204,66 @@ namespace KalderasEscape.GameClasses
             }
         }
 
-        private void LookAtItem(Item item)
+        private void LookAtItem(Item selectedItem)
         {
-            var options = new string[item.Actions.Length + 1];
+            var options = selectedItem.GetOptions(player);
+            options.Add("Main menu");
 
-            for (int i = 0; i < item.Actions.Length; i++)
-            {
-                options[i] = item.Actions[i];
-            }
-            options[item.Actions.Length] = "Main menu";
-
-            var action = Prompt.Select($"What do you want to do with '{item.Name}'?", options);
+            var action = Prompt.Select($"What does {player.Name} want to do with '{selectedItem.Name}'?", options);
 
             if (action == "Main menu")
             {
-                MainMenu();
+                ShowMainMenu();
+            }
+            else if (action == "Combine")
+            {
+                ShowCombineMenu(selectedItem);
             }
             else
             {
-                item.PerformAction(player, action);
-                LookAtItem(item);
+                selectedItem.PerformAction(player, action);
+                LookAtItem(selectedItem);
+            }
+        }
+
+        private void ShowCombineMenu(Item selectedItem)
+         {
+            var options = new List<string>();
+
+            player.Inventory.ForEach(item => options.Add(item.Name));
+            options.Remove(selectedItem.Name);
+
+            if (options.Count.Equals(0))
+            {
+                Program.WriteLineFalling("You have no other items to combine this with...");
+                LookAtItem(selectedItem);
+            }
+            else
+            {
+                var action = Prompt.Select("Combine with", options);
+                var itemToCombineWith = player.Inventory.First(item => item.Name.Equals(action));
+
+                CombineItems(selectedItem, itemToCombineWith);
+            }
+        }
+
+        private void CombineItems(Item item1, Item item2)
+        {
+            var newItem = item1.CombineWith(item2);
+
+            if (newItem != null)
+            {
+                player.Inventory.Add(newItem);
+                player.Inventory.Remove(item1);
+                player.Inventory.Remove(item2);
+
+                Program.WriteLineFalling($"You combine '{item1.Name}' with '{item2.Name}' and get '{newItem.Name}'");
+                LookAtItem(newItem);
+            }
+            else
+            {
+                Program.WriteLineFalling($"It seems '{item1.Name}' cannot be combined with '{item2.Name}'");
+                LookAtItem(item1);
             }
         }
 
@@ -198,11 +271,35 @@ namespace KalderasEscape.GameClasses
         {
             var direction = Prompt.Select<Direction>("Where do I want to go?");
             player.Navigate(direction);
+
+            if (player.CurrentRoom.IsEndPoint)
+            {
+                EndGame();
+            }
+            else
+            {
+                ShowMainMenu();
+            }
         }
 
         private void ShowInventory()
         {
+            var options = new List<string>();
 
+            player.Inventory.ForEach(item => options.Add(item.Name));
+            options.Add("Main menu");
+
+            var action = Prompt.Select($"{player.Name}s inventory", options.ToArray());
+
+            if (action == "Main menu")
+            {
+                ShowMainMenu();
+            }
+            else
+            {
+                var selectedItem = player.Inventory.First(item => item.Name.Equals(action));
+                LookAtItem(selectedItem);
+            }
         }
     }
 }

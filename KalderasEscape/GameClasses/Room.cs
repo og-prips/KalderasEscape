@@ -17,6 +17,7 @@
 
         public string Description;
         public string Name;
+        public bool IsEndPoint = false;
 
         public Room(string name)
         {
@@ -95,45 +96,18 @@
 
         public void SetConnectedRooms()
         {
-            if (NorthRoom != null)
-            {
-                ConnectedRooms.Add(NorthRoom);
-            }
-
-            if (SouthRoom != null)
-            {
-                ConnectedRooms.Add(SouthRoom);
-            }
-
-            if (WestRoom != null)
-            { 
-                ConnectedRooms.Add(WestRoom);
-            }
-
-            if (EastRoom != null)
-            {
-                ConnectedRooms.Add(EastRoom);
-            }
+            if (NorthRoom != null) ConnectedRooms.Add(NorthRoom);
+            if (SouthRoom != null) ConnectedRooms.Add(SouthRoom);
+            if (WestRoom != null) ConnectedRooms.Add(WestRoom);
+            if (EastRoom != null) ConnectedRooms.Add(EastRoom);
         }
 
         public Door GetDoorByRoom(Room room)
         {
-            if (room == NorthRoom)
-            {
-                return NorthDoor;
-            }
-            else if (room == SouthRoom)
-            {
-                return SouthDoor;
-            }
-            else if (room == WestRoom)
-            {
-                return WestDoor;
-            }
-            else
-            {
-                return EastDoor;
-            }
+            if (room == NorthRoom) return NorthDoor;
+            else if (room == SouthRoom) return SouthDoor;
+            else if (room == WestRoom) return WestDoor;
+            else return EastDoor;
         }
 
         private void CreateNorthSouthDoor(Room northRoom, Room southRoom)

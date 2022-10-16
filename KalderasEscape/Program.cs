@@ -8,7 +8,7 @@ namespace KalderasEscape
         {
             Game game = new Game();
 
-            game.Start();
+            game.StartGame();
         }
 
         public static void WriteLineFalling(string value)
@@ -27,7 +27,6 @@ namespace KalderasEscape
 
         public static void Exit()
         {
-            // save to files then close
             WriteLineFalling("Shutting down...");
             Environment.Exit(0);
         }
