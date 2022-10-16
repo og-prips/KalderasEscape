@@ -10,7 +10,6 @@ namespace KalderasEscape.GameClasses.Items
     {
         public override string Name { get; set; } = "Space Helmet";
         public override string Description { get; set; } = "A space helmet";
-        
 
         public override List<string> GetOptions(Player player)
         {
