@@ -2,21 +2,33 @@
 
 namespace KalderasEscape
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             Game game = new Game();
-            Room s = new Room();
-            Room a = new Room();
-            Room b = new Room();
-            Room c = new Room();
 
-            s.ConnectTo(b, Direction.North, false);
-            b.ConnectTo(a, Direction.West, false);
-            b.ConnectTo(c, Direction.East, false);
+            game.StartGame();
+        }
 
-            List<Room> Map = new List<Room>();
+        public static void WriteLineFalling(string value)
+        {
+            var sleepInterval = 20;
+
+            if (value.Length > 40) sleepInterval = 10;
+
+            foreach (char c in value)
+            {
+                Console.Write(c);
+                Thread.Sleep(sleepInterval);
+            }
+            Console.WriteLine("\n");
+        }
+
+        public static void Exit()
+        {
+            WriteLineFalling("Shutting down...");
+            Environment.Exit(0);
         }
     }
 }
