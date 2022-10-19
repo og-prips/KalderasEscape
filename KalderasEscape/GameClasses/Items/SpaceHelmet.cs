@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KalderasEscape.GameClasses.Items
+﻿namespace KalderasEscape.GameClasses.Items
 {
     internal class SpaceHelmet : Item
     {
-        public override string Name { get; set; } = "Space Helmet";
-        public override string Description { get; set; } = "A space helmet";
+        public SpaceHelmet(string name, string description) : base(name, description)
+        {
+        }
 
         public override List<string> GetOptions(Player player)
         {

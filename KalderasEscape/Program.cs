@@ -1,4 +1,5 @@
 ﻿using KalderasEscape.GameClasses;
+using Spectre.Console;
 
 namespace KalderasEscape
 {
@@ -7,6 +8,12 @@ namespace KalderasEscape
         static void Main(string[] args)
         {
             Game game = new Game();
+            game.Name = "Kalderas Escape";
+
+            AnsiConsole.Write(
+            new FigletText(game.Name)
+                .Centered()
+                .Color(Color.Orange1));
 
             game.StartGame();
         }

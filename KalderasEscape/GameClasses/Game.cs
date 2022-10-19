@@ -1,8 +1,7 @@
 ﻿using KalderasEscape.GameClasses.Items;
 using Sharprompt;
-using System;
+using Spectre.Console;
 using System.ComponentModel.DataAnnotations;
-using static System.Collections.Specialized.BitVector32;
 
 namespace KalderasEscape.GameClasses
 {
@@ -20,6 +19,8 @@ namespace KalderasEscape.GameClasses
 
     public class Game
     {
+        public string Name { get; set; }
+
         Room commandRoom;
         Room passageRoom;
         Room utilityRoom;
@@ -58,12 +59,27 @@ namespace KalderasEscape.GameClasses
             ShowMainMenu();
         }
 
-        private void EndGame()
+        private void EndGame(bool playerDies)
         {
-            var endingMessage =
-                "You head out into Kaldera, a brand new world for you to explore\n\n--- THE END ---";
+            var commonEndingMessage = "\nYou head out into Kaldera, ";
+            var dynamicEndingMessage = "";
+            var endingFigletText = new FigletText("THE END").Centered();
 
-            Program.WriteLineFalling(endingMessage);
+            if (playerDies)
+            {
+                dynamicEndingMessage = "but the harsh environment quickly kills you...";
+                endingFigletText.Color = Color.Red;
+            }
+            else
+            {
+                dynamicEndingMessage = "a brand new world for you to explore";
+                endingFigletText.Color = Color.Green;
+            }
+            
+            Program.WriteLineFalling(commonEndingMessage);
+            Thread.Sleep(750);
+            Program.WriteLineFalling(dynamicEndingMessage);
+            AnsiConsole.Write(endingFigletText);
 
             if (Prompt.Confirm("Do you want to replay the game?"))
             {
@@ -86,10 +102,10 @@ namespace KalderasEscape.GameClasses
         // Creates and sets parameters
         private void InitializeItems()
         {
-            endingRoomKeyCard = new KeyCard();
-            spaceHelmet = new SpaceHelmet();
-            partialSpaceSuit = new PartialSpaceSuit();
-            spaceSuit = new SpaceSuit();
+            endingRoomKeyCard = new KeyCard("Keycard", "A blood stained keycard, this could be useful for getting out of here");
+            spaceHelmet = new SpaceHelmet("Space helmet", "A fully working space helmet, will be needed for survival on Kaldera");
+            partialSpaceSuit = new PartialSpaceSuit("Partial space suit", "An intact spacesuit without a helmet");
+            spaceSuit = new SpaceSuit("Space suit", "A fully equipped space suit, will be needed for safe exit into the wild");
 
             spaceHelmet.SetCombineItem(partialSpaceSuit, spaceSuit);
         }
@@ -108,16 +124,17 @@ namespace KalderasEscape.GameClasses
             commandRoom.Description =
                 "The command room, where you were seated during the crash. It's no pleasant sight...\nYou see a keycard lying on the floor amidst all chaos";
             passageRoom.Description = 
-                "This is the room which separates you from the open world, to the west of you is the Utility room and to the east lies the Sleeping room";
+                "This is the room which separates you from the open world, to the west of you is the Utility room and to the east lies the Sleeping room.\n" +
+                "To the north you have the exit to Kaldera";
             utilityRoom.Description = 
-                "In here lies a bunch of equipment, most of which is broken. Though one space suit lies intact, though it's missing a helmet";
+                "In here lies a bunch of equipment, most of which is broken. Only one space suit lies intact, though it's missing a helmet";
             sleepingRoom.Description = 
                 "The room where your crew headed for rest. One of your crew members space helmet lies beside one of the beds, it could be useful";
 
             commandRoom.ConnectTo(passageRoom, Direction.North);
             passageRoom.ConnectTo(utilityRoom, Direction.West);
             passageRoom.ConnectTo(sleepingRoom, Direction.East);
-            passageRoom.ConnectTo(endingRoom, Direction.North, endingRoomKeyCard); ;
+            passageRoom.ConnectTo(endingRoom, Direction.North, endingRoomKeyCard);
 
             commandRoom.Items.Add(endingRoomKeyCard);
             sleepingRoom.Items.Add(spaceHelmet);
@@ -186,12 +203,12 @@ namespace KalderasEscape.GameClasses
             {
                 options[i] = player.CurrentRoom.Items[i].Name;
             }
-            options[player.CurrentRoom.Items.Count] = "Main menu";
+            options[player.CurrentRoom.Items.Count] = "MAIN MENU";
 
             Program.WriteLineFalling(player.CurrentRoom.Description);
             action = Prompt.Select("Go to...", options);
 
-            if (action == "Main menu")
+            if (action == "MAIN MENU")
             {
                 ShowMainMenu();
             }
@@ -205,11 +222,11 @@ namespace KalderasEscape.GameClasses
         private void LookAtItem(Item selectedItem)
         {
             var options = selectedItem.GetOptions(player);
-            options.Add("Main menu");
+            options.Add("MAIN MENU");
 
             var action = Prompt.Select($"What does {player.Name} want to do with '{selectedItem.Name}'?", options);
 
-            if (action == "Main menu")
+            if (action == "MAIN MENU")
             {
                 ShowMainMenu();
             }
@@ -234,7 +251,7 @@ namespace KalderasEscape.GameClasses
             if (options.Count.Equals(0))
             {
                 Program.WriteLineFalling("You have no other items to combine this with...");
-                LookAtItem(selectedItem);
+                ShowMainMenu();
             }
             else
             {
@@ -256,7 +273,7 @@ namespace KalderasEscape.GameClasses
                 player.Inventory.Remove(item2);
 
                 Program.WriteLineFalling($"You combine '{item1.Name}' with '{item2.Name}' and get '{newItem.Name}'");
-                LookAtItem(newItem);
+                ShowMainMenu();
             }
             else
             {
@@ -267,12 +284,30 @@ namespace KalderasEscape.GameClasses
 
         private void MovePlayer()
         {
-            var direction = Prompt.Select<Direction>("Where do I want to go?");
-            player.Navigate(direction);
+            var direction = Prompt.Select<Direction>($"Where does {player.Name} want to go?");
 
-            if (player.CurrentRoom.IsEndPoint)
+            if (player.RoomToEnter(direction) != null &&
+                player.RoomToEnter(direction).IsEndPoint &&
+                !player.DoorToEnter(direction).IsLocked)
             {
-                EndGame();
+                EnterEndPoint();
+            }
+            else
+            {
+                player.Navigate(direction);
+                ShowMainMenu();
+            }
+        }
+
+        private void EnterEndPoint()
+        {
+            if (player.Inventory.Contains(spaceSuit))
+            {
+                EndGame(false);
+            }
+            else if (Prompt.Confirm("Heading out into Kaldera without a space suit would prove fatal. Are you sure you want to proceed?"))
+            {
+                EndGame(true);
             }
             else
             {

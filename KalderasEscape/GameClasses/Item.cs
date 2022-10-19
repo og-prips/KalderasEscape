@@ -1,13 +1,17 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace KalderasEscape.GameClasses
+﻿namespace KalderasEscape.GameClasses
 {
     public class Item
     {
-        public virtual string Name { get; set; }
-        public virtual string Description { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
         public virtual Item CombineItem { get; set; }
         public virtual Item CompleteItem { get; set; }
+
+        public Item(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
 
         public virtual void PerformAction(Player player, string action)
         {
