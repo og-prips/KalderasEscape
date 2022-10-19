@@ -13,21 +13,9 @@
 
         public void Navigate(Direction direction)
         {
-            var roomToEnter = direction switch
-            {
-                Direction.North => CurrentRoom.NorthRoom,
-                Direction.South => CurrentRoom.SouthRoom,
-                Direction.West => CurrentRoom.WestRoom,
-                Direction.East => CurrentRoom.EastRoom
-            };
+            var roomToEnter = RoomToEnter(direction);
 
-            var doorToEnter = direction switch
-            {
-                Direction.North => CurrentRoom.NorthDoor,
-                Direction.South => CurrentRoom.SouthDoor,
-                Direction.West => CurrentRoom.WestDoor,
-                Direction.East => CurrentRoom.EastDoor
-            };
+            var doorToEnter = DoorToEnter(direction);
 
             if (roomToEnter == null)
             {
@@ -44,12 +32,38 @@
             }
         }
 
+        public Room? RoomToEnter(Direction direction)
+        {
+            var roomToEnter = direction switch
+            {
+                Direction.North => CurrentRoom.NorthRoom,
+                Direction.South => CurrentRoom.SouthRoom,
+                Direction.West => CurrentRoom.WestRoom,
+                Direction.East => CurrentRoom.EastRoom
+            };
+
+            return roomToEnter;
+        }
+
+        public Door DoorToEnter(Direction direction)
+        {
+            var doorToEnter = direction switch
+            {
+                Direction.North => CurrentRoom.NorthDoor,
+                Direction.South => CurrentRoom.SouthDoor,
+                Direction.West => CurrentRoom.WestDoor,
+                Direction.East => CurrentRoom.EastDoor
+            };
+
+            return doorToEnter;
+        }
+
         public void PickUp(Item item)
         {
             Inventory.Add(item);
             CurrentRoom.Items.Remove(item);
 
-            Program.WriteLineFalling($"You pick up {item.Name}");
+            Program.WriteLineFalling($"You pick up '{item.Name}'");
         }
 
         public void Drop(Item item)
@@ -57,7 +71,7 @@
             Inventory.Remove(item);
             CurrentRoom.Items.Add(item);
 
-            Program.WriteLineFalling($"You drop {item.Name}");
+            Program.WriteLineFalling($"You drop '{item.Name}'");
         }
     }
 }

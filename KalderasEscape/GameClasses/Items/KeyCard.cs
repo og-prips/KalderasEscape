@@ -4,9 +4,13 @@ namespace KalderasEscape.GameClasses.Items
 {
     public class KeyCard : Item
     {
-        public override string Name { get; set; } = "Blood stained keycard";
-        public override string Description { get; set; } = "This could be useful for getting out of here";
-        
+        public KeyCard(string name, string description) : base(name, description)
+        {
+        }
+
+        //public override string Name { get; set; } = "Blood stained keycard";
+        //public override string Description { get; set; } = "This could be useful for getting out of here";
+
         public override void PerformAction(Player player, string action)
         {
             base.PerformAction(player, action);

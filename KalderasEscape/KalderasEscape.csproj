@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Sharprompt" Version="2.4.5" />
+    <PackageReference Include="Spectre.Console" Version="0.45.0" />
   </ItemGroup>
 
 </Project>
